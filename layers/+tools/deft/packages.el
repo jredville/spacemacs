@@ -10,10 +10,17 @@
 ;;; License: GPLv3
 
 (setq deft-packages
-  '(deft))
+      '(
+        deft
+        (helm-deft :location (recipe
+                              :fetcher github
+                              :repo "dfeich/helm-deft")
+                   )
+        ))
 
 (defun deft/init-deft ()
   (use-package deft
+    :if (not (deft--use-helm))
     :defer t
     :init
     (progn
@@ -32,8 +39,24 @@
           (hungry-delete-mode -1))
         ;; When opening it you always want to filter right away
         (evil-insert-state nil)))
-    :config (spacemacs/set-leader-keys-for-major-mode 'deft-mode
-              "d" 'deft-delete-file
-              "i" 'deft-toggle-incremental-search
-              "n" 'deft-new-file
-              "r" 'deft-rename-file)))
+    :config 
+    (spacemacs/set-leader-keys-for-major-mode 'deft-mode
+      "d" 'deft-delete-file
+      "i" 'deft-toggle-incremental-search
+      "n" 'deft-new-file
+      "r" 'deft-rename-file)
+))
+
+(defun deft/init-helm-deft ()
+  (use-package helm-deft
+    :if (deft--use-helm)
+    :defer t
+    :init
+    (progn
+      (setq helm-deft-extension "org"
+            deft-text-mode 'org-mode)
+      (spacemacs/set-leader-keys "an" 'helm-deft))
+))
+
+(defun deft--use-helm ()
+  deft-use-helm)
